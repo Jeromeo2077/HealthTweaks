@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Archives / builds
+*.zip
+*.7z
+*.rar
+
+# Logs
+*.log
+
+# Lua bytecode (if any tooling generates it)
+*.luac
