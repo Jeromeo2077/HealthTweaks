@@ -41,11 +41,16 @@ local CONFIG = {
 -------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------
-local function setFlat(key, value)
+local function setFlat(key, value, opts)
   -- Some flats vary by game version / can change types; avoid noisy logs for successes.
+  -- opts.optional=true => suppress "not found" and "failed" logs (for non-critical UI tweaks)
+  opts = opts or {}
+
   local existing = TweakDB:GetFlat(key)
   if existing == nil then
-    log("Flat not found: " .. key)
+    if not opts.optional then
+      log("Flat not found: " .. key)
+    end
     return false
   end
 
@@ -60,15 +65,17 @@ local function setFlat(key, value)
     if ok then return true end
   end
 
-  log("FAILED to set " .. key)
+  if not opts.optional then
+    log("FAILED to set " .. key)
+  end
   return false
 end
 
-local function trySet(keys, value)
+local function trySet(keys, value, opts)
   for _, k in ipairs(keys) do
     local existing = TweakDB:GetFlat(k)
     if existing ~= nil then
-      if setFlat(k, value) then
+      if setFlat(k, value, opts) then
         return k
       end
     end
@@ -190,33 +197,36 @@ registerForEvent("onInit", function()
 
   setFlat(
     "Items.BonesMcCoy70V0_inline7.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V0.Instant, CONFIG.BounceBack.V0.HPS, CONFIG.BounceBackDuration)
+    bbDesc(CONFIG.BounceBack.V0.Instant, CONFIG.BounceBack.V0.HPS, CONFIG.BounceBackDuration),
+    { optional = true }
   )
   setFlat(
     "Items.BonesMcCoy70V1_inline7.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V1.Instant, CONFIG.BounceBack.V1.HPS, CONFIG.BounceBackDuration)
+    bbDesc(CONFIG.BounceBack.V1.Instant, CONFIG.BounceBack.V1.HPS, CONFIG.BounceBackDuration),
+    { optional = true }
   )
 
-  setFlat("Items.BonesMcCoy70V0_inline7.intValues", {})
-  setFlat("Items.BonesMcCoy70V1_inline7.intValues", {})
+  setFlat("Items.BonesMcCoy70V0_inline7.intValues", {}, { optional = true })
+  setFlat("Items.BonesMcCoy70V1_inline7.intValues", {}, { optional = true })
 
   TweakDB:CloneRecord("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7")
   setFlat(
     "BounceBackV2UI_zz.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, CONFIG.BounceBackDuration)
+    bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, CONFIG.BounceBackDuration),
+    { optional = true }
   )
-  setFlat("Items.BonesMcCoy70V2_inline7.UIData", "BounceBackV2UI_zz")
+  setFlat("Items.BonesMcCoy70V2_inline7.UIData", "BounceBackV2UI_zz", { optional = true })
 
-  setFlat("Items.FirstAidWhiffV0_inline7.localizedDescription", mdDesc(CONFIG.MaxDoc.V0))
-  setFlat("Items.FirstAidWhiffV0_inline7.intValues", {})
+  setFlat("Items.FirstAidWhiffV0_inline7.localizedDescription", mdDesc(CONFIG.MaxDoc.V0), { optional = true })
+  setFlat("Items.FirstAidWhiffV0_inline7.intValues", {}, { optional = true })
 
   TweakDB:CloneRecord("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7")
-  setFlat("MaxDocV1UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V1))
-  setFlat("Items.FirstAidWhiffV1_inline7.UIData", "MaxDocV1UI_zz")
+  setFlat("MaxDocV1UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V1), { optional = true })
+  setFlat("Items.FirstAidWhiffV1_inline7.UIData", "MaxDocV1UI_zz", { optional = true })
 
   TweakDB:CloneRecord("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7")
-  setFlat("MaxDocV2UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V2))
-  setFlat("Items.FirstAidWhiffV2_inline7.UIData", "MaxDocV2UI_zz")
+  setFlat("MaxDocV2UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V2), { optional = true })
+  setFlat("Items.FirstAidWhiffV2_inline7.UIData", "MaxDocV2UI_zz", { optional = true })
 
   log("Loaded.")
 end)
