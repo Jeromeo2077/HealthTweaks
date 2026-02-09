@@ -43,9 +43,7 @@ local CONFIG = {
 -------------------------------------------------------------------------
 local function setFlat(key, value)
   local ok = TweakDB:SetFlat(key, value)
-  if ok then
-    log("Set " .. key .. " = " .. tostring(value))
-  else
+  if not ok then
     log("FAILED to set " .. key)
   end
   return ok
