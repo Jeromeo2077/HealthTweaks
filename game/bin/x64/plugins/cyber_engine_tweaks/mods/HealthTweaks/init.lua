@@ -83,6 +83,19 @@ local function trySet(keys, value, opts)
   return nil
 end
 
+local function cloneRecord(newId, fromId, opts)
+  -- CloneRecord can fail if the source record isn't present in this build.
+  -- opts.optional=true => suppress failure logs (for non-critical UI tweaks)
+  opts = opts or {}
+  local ok = pcall(function()
+    TweakDB:CloneRecord(newId, fromId)
+  end)
+  if (not ok) and (not opts.optional) then
+    log("FAILED to clone record " .. tostring(fromId) .. " -> " .. tostring(newId))
+  end
+  return ok
+end
+
 local function bbDesc(instant, hps, dur)
   return "Instantly restores "
     .. instant
@@ -209,7 +222,7 @@ registerForEvent("onInit", function()
   setFlat("Items.BonesMcCoy70V0_inline7.intValues", {}, { optional = true })
   setFlat("Items.BonesMcCoy70V1_inline7.intValues", {}, { optional = true })
 
-  TweakDB:CloneRecord("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7")
+  cloneRecord("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7", { optional = true })
   setFlat(
     "BounceBackV2UI_zz.localizedDescription",
     bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, CONFIG.BounceBackDuration),
@@ -220,11 +233,11 @@ registerForEvent("onInit", function()
   setFlat("Items.FirstAidWhiffV0_inline7.localizedDescription", mdDesc(CONFIG.MaxDoc.V0), { optional = true })
   setFlat("Items.FirstAidWhiffV0_inline7.intValues", {}, { optional = true })
 
-  TweakDB:CloneRecord("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7")
+  cloneRecord("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7", { optional = true })
   setFlat("MaxDocV1UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V1), { optional = true })
   setFlat("Items.FirstAidWhiffV1_inline7.UIData", "MaxDocV1UI_zz", { optional = true })
 
-  TweakDB:CloneRecord("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7")
+  cloneRecord("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7", { optional = true })
   setFlat("MaxDocV2UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V2), { optional = true })
   setFlat("Items.FirstAidWhiffV2_inline7.UIData", "MaxDocV2UI_zz", { optional = true })
 
