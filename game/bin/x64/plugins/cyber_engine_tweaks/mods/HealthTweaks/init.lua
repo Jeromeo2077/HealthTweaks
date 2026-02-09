@@ -42,11 +42,26 @@ local CONFIG = {
 -- Helpers
 -------------------------------------------------------------------------
 local function setFlat(key, value)
-  local ok = TweakDB:SetFlat(key, value)
-  if not ok then
-    log("FAILED to set " .. key)
+  -- Some flats vary by game version / can change types; avoid noisy logs for successes.
+  local existing = TweakDB:GetFlat(key)
+  if existing == nil then
+    log("Flat not found: " .. key)
+    return false
   end
-  return ok
+
+  local ok = TweakDB:SetFlat(key, value)
+  if ok then return true end
+
+  -- Retry numeric values as float/int to work around occasional type mismatch issues.
+  if type(value) == "number" then
+    ok = TweakDB:SetFlat(key, value * 1.0)
+    if ok then return true end
+    ok = TweakDB:SetFlat(key, math.floor(value))
+    if ok then return true end
+  end
+
+  log("FAILED to set " .. key)
+  return false
 end
 
 local function trySet(keys, value)
@@ -90,10 +105,38 @@ registerForEvent("onInit", function()
   -- Bounce Back duration
   setFlat("Items.BonesMcCoy70Duration_inline0.value", CONFIG.BounceBackDuration)
 
-  -- Bounce Back heal-per-second
-  setFlat("BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec", CONFIG.BounceBack.V0.HPS)
-  setFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", CONFIG.BounceBack.V1.HPS)
-  setFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", CONFIG.BounceBack.V2.HPS)
+  -- Bounce Back heal-per-second — candidates vary across game versions
+  local BB_HPS_CANDIDATES = {
+    V0 = {
+      "BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V0_inline1.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V0_inline3.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V0_inline0.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V0_inline4.valuePerSec",
+    },
+    V1 = {
+      "BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V1_inline1.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V1_inline3.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V1_inline0.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V1_inline4.valuePerSec",
+    },
+    V2 = {
+      "BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V2_inline1.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V2_inline3.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V2_inline0.valuePerSec",
+      "BaseStatusEffect.BonesMcCoy70V2_inline4.valuePerSec",
+    },
+  }
+
+  local usedHpsV0 = trySet(BB_HPS_CANDIDATES.V0, CONFIG.BounceBack.V0.HPS)
+  local usedHpsV1 = trySet(BB_HPS_CANDIDATES.V1, CONFIG.BounceBack.V1.HPS)
+  local usedHpsV2 = trySet(BB_HPS_CANDIDATES.V2, CONFIG.BounceBack.V2.HPS)
+
+  if not usedHpsV0 then log("BounceBack V0 HPS NOT patched (no candidate flat found).") end
+  if not usedHpsV1 then log("BounceBack V1 HPS NOT patched (no candidate flat found).") end
+  if not usedHpsV2 then log("BounceBack V2 HPS NOT patched (no candidate flat found).") end
 
   -- MaxDoc instant heal
   setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", CONFIG.MaxDoc.V0)
