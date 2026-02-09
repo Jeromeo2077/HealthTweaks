@@ -141,9 +141,9 @@ registerForEvent("onInit", function()
   local usedHpsV1 = trySet(BB_HPS_CANDIDATES.V1, CONFIG.BounceBack.V1.HPS)
   local usedHpsV2 = trySet(BB_HPS_CANDIDATES.V2, CONFIG.BounceBack.V2.HPS)
 
-  if not usedHpsV0 then log("BounceBack V0 HPS NOT patched (no candidate flat found).") end
-  if not usedHpsV1 then log("BounceBack V1 HPS NOT patched (no candidate flat found).") end
-  if not usedHpsV2 then log("BounceBack V2 HPS NOT patched (no candidate flat found).") end
+  if not usedHpsV0 then log("BounceBack V0 healing-over-time (HPS/regen) NOT patched (no candidate flat found).") end
+  if not usedHpsV1 then log("BounceBack V1 healing-over-time (HPS/regen) NOT patched (no candidate flat found).") end
+  if not usedHpsV2 then log("BounceBack V2 healing-over-time (HPS/regen) NOT patched (no candidate flat found).") end
 
   -- MaxDoc instant heal
   setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", CONFIG.MaxDoc.V0)
@@ -155,19 +155,19 @@ registerForEvent("onInit", function()
   -------------------------------------------------------------------------
   local BB_INSTANT_CANDIDATES = {
     V0 = {
-      "BaseStatusEffect.BonesMcCoy70V0_inline3.statPoolValue",
       "BaseStatusEffect.BonesMcCoy70V0_inline3.value",
+      "BaseStatusEffect.BonesMcCoy70V0_inline3.statPoolValue",
       "Items.BonesMcCoy70V0_inline6.value",
     },
     V1 = {
+      "Items.BonesMcCoy70V1_inline6.value",
       "BaseStatusEffect.BonesMcCoy70V1_inline3.statPoolValue",
       "BaseStatusEffect.BonesMcCoy70V1_inline3.value",
-      "Items.BonesMcCoy70V1_inline6.value",
     },
     V2 = {
+      "Items.BonesMcCoy70V2_inline6.value",
       "BaseStatusEffect.BonesMcCoy70V2_inline3.statPoolValue",
       "BaseStatusEffect.BonesMcCoy70V2_inline3.value",
-      "Items.BonesMcCoy70V2_inline6.value",
     },
   }
 
@@ -176,19 +176,19 @@ registerForEvent("onInit", function()
   local usedV2 = trySet(BB_INSTANT_CANDIDATES.V2, CONFIG.BounceBack.V2.Instant)
 
   if usedV0 then
-    log("BounceBack V0 instant heal patched via: " .. usedV0)
+    log("BounceBack V0 instant (one-time) heal patched via: " .. usedV0)
   else
-    log("BounceBack V0 instant heal NOT patched (no candidate flat worked).")
+    log("BounceBack V0 instant (one-time) heal NOT patched (no candidate flat worked).")
   end
   if usedV1 then
-    log("BounceBack V1 instant heal patched via: " .. usedV1)
+    log("BounceBack V1 instant (one-time) heal patched via: " .. usedV1)
   else
-    log("BounceBack V1 instant heal NOT patched (no candidate flat worked).")
+    log("BounceBack V1 instant (one-time) heal NOT patched (no candidate flat worked).")
   end
   if usedV2 then
-    log("BounceBack V2 instant heal patched via: " .. usedV2)
+    log("BounceBack V2 instant (one-time) heal patched via: " .. usedV2)
   else
-    log("BounceBack V2 instant heal NOT patched (no candidate flat worked).")
+    log("BounceBack V2 instant (one-time) heal NOT patched (no candidate flat worked).")
   end
 
   -------------------------------------------------------------------------
