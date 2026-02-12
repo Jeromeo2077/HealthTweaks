@@ -1,7 +1,7 @@
 -- HealthTweaks (Cyber Engine Tweaks mod)
 -- Entry point: CET loads this file automatically.
 
-local modName = "HealthTweaks"
+local modName = "Health Tweaks"
 
 local HealthTweaks = {
   description = "Editable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown,itable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown, MaxDoc + BounceBack values",
@@ -61,9 +61,7 @@ local MaxDoc3Heal = CONFIG.MaxDoc.V2
 -------------------------------------------------------------------------
 local function setFlat(key, value)
   local ok = TweakDB:SetFlat(key, value)
-  if ok then
-    log("Set " .. key .. " = " .. tostring(value))
-  else
+  if not ok then
     log("FAILED to set " .. key)
   end
   return ok
@@ -83,6 +81,26 @@ local function mdDesc(instant)
   return "Instantly restores " .. instant .. " health."
 end
 
+local function cloneRecordIfMissing(newId, baseId)
+  local okGet, existing = pcall(function()
+    return TweakDB:GetRecord(newId)
+  end)
+
+  if okGet and existing ~= nil then
+    return true
+  end
+
+  local okClone = pcall(function()
+    TweakDB:CloneRecord(newId, baseId)
+  end)
+
+  if not okClone then
+    log("FAILED to clone record " .. newId)
+  end
+
+  return okClone
+end
+
 registerForEvent("onInit", function()
   -- Disable Passive Health Regeneration
   setFlat("BaseStatPools.PlayerBaseInCombatHealthRegen_inline4.value", CONFIG.PassiveRegenInCombat)
@@ -96,22 +114,22 @@ registerForEvent("onInit", function()
   -------------------------------------------------------------------------
 
   -- Bounce Back duration (updated per your request)
-  TweakDB:SetFlat("Items.BonesMcCoy70Duration_inline0.value", BounceBackDuration)
+  setFlat("Items.BonesMcCoy70Duration_inline0.value", BounceBackDuration)
 
   -- Bounce Back heal-per-second
-  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec", BounceBack1HealOverTime)
-  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", BounceBack2HealOverTime)
-  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", BounceBack3HealOverTime)
+  setFlat("BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec", BounceBack1HealOverTime)
+  setFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", BounceBack2HealOverTime)
+  setFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", BounceBack3HealOverTime)
 
   -- Bounce Back instant heal
-  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V0_inline6.statPoolValue", BounceBack1InstantHeal)
-  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V1_inline6.statPoolValue", BounceBack2InstantHeal)
-  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V2_inline6.statPoolValue", BounceBack3InstantHeal)
+  setFlat("BaseStatusEffect.BonesMcCoy70V0_inline6.statPoolValue", BounceBack1InstantHeal)
+  setFlat("BaseStatusEffect.BonesMcCoy70V1_inline6.statPoolValue", BounceBack2InstantHeal)
+  setFlat("BaseStatusEffect.BonesMcCoy70V2_inline6.statPoolValue", BounceBack3InstantHeal)
 
   -- MaxDoc instant heal
-  TweakDB:SetFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
-  TweakDB:SetFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", MaxDoc2Heal)
-  TweakDB:SetFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", MaxDoc3Heal)
+  setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
+  setFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", MaxDoc2Heal)
+  setFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", MaxDoc3Heal)
 
   -------------------------------------------------------------------------
   -- UI updates (tooltips match what you set)
@@ -129,7 +147,7 @@ registerForEvent("onInit", function()
   setFlat("Items.BonesMcCoy70V0_inline7.intValues", {})
   setFlat("Items.BonesMcCoy70V1_inline7.intValues", {})
 
-  TweakDB:CloneRecord("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7")
+  cloneRecordIfMissing("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7")
   setFlat(
     "BounceBackV2UI_zz.localizedDescription",
     bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, BounceBackDuration)
@@ -139,15 +157,15 @@ registerForEvent("onInit", function()
   setFlat("Items.FirstAidWhiffV0_inline7.localizedDescription", mdDesc(CONFIG.MaxDoc.V0))
   setFlat("Items.FirstAidWhiffV0_inline7.intValues", {})
 
-  TweakDB:CloneRecord("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7")
+  cloneRecordIfMissing("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7")
   setFlat("MaxDocV1UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V1))
   setFlat("Items.FirstAidWhiffV1_inline7.UIData", "MaxDocV1UI_zz")
 
-  TweakDB:CloneRecord("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7")
+  cloneRecordIfMissing("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7")
   setFlat("MaxDocV2UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V2))
   setFlat("Items.FirstAidWhiffV2_inline7.UIData", "MaxDocV2UI_zz")
 
-  log("Loaded.")
+  log("loaded")
 end)
 
 return HealthTweaks
