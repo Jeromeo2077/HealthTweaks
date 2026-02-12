@@ -46,6 +46,11 @@ local BounceBack1HealOverTime = CONFIG.BounceBack.V0.HPS
 local BounceBack2HealOverTime = CONFIG.BounceBack.V1.HPS
 local BounceBack3HealOverTime = CONFIG.BounceBack.V2.HPS
 
+-- Bounce Back instant heal aliases
+local BounceBack1InstantHeal = CONFIG.BounceBack.V0.Instant
+local BounceBack2InstantHeal = CONFIG.BounceBack.V1.Instant
+local BounceBack3InstantHeal = CONFIG.BounceBack.V2.Instant
+
 -- MaxDoc instant heal aliases
 local MaxDoc1Heal = CONFIG.MaxDoc.V0
 local MaxDoc2Heal = CONFIG.MaxDoc.V1
@@ -97,6 +102,11 @@ registerForEvent("onInit", function()
   TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec", BounceBack1HealOverTime)
   TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", BounceBack2HealOverTime)
   TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", BounceBack3HealOverTime)
+
+  -- Bounce Back instant heal
+  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V0_inline6.statPoolValue", BounceBack1InstantHeal)
+  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V1_inline6.statPoolValue", BounceBack2InstantHeal)
+  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V2_inline6.statPoolValue", BounceBack3InstantHeal)
 
   -- MaxDoc instant heal
   TweakDB:SetFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
