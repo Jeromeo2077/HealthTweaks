@@ -4,7 +4,7 @@
 local modName = "HealthTweaks"
 
 local HealthTweaks = {
-  description = "Editable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown, MaxDoc + BounceBack healing values",
+  description = "Editable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown,itable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown, MaxDoc + BounceBack values",
 }
 
 local function log(msg)
@@ -38,60 +38,28 @@ local CONFIG = {
   HealingChargesRegen = 0.01,
 }
 
+-- Alias used by your requested SetFlat call
+local BounceBackDuration = CONFIG.BounceBackDuration
+
+-- Bounce Back heal-over-time aliases (HPS)
+local BounceBack1HealOverTime = CONFIG.BounceBack.V0.HPS
+local BounceBack2HealOverTime = CONFIG.BounceBack.V1.HPS
+local BounceBack3HealOverTime = CONFIG.BounceBack.V2.HPS
+
+-- MaxDoc instant heal aliases
+local MaxDoc1Heal = CONFIG.MaxDoc.V0
+local MaxDoc2Heal = CONFIG.MaxDoc.V1
+local MaxDoc3Heal = CONFIG.MaxDoc.V2
+
 -------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------
-local function setFlat(key, value, opts)
-  -- Some flats vary by game version / can change types; avoid noisy logs for successes.
-  -- opts.optional=true => suppress "not found" and "failed" logs (for non-critical UI tweaks)
-  opts = opts or {}
-
-  local existing = TweakDB:GetFlat(key)
-  if existing == nil then
-    if not opts.optional then
-      log("Flat not found: " .. key)
-    end
-    return false
-  end
-
+local function setFlat(key, value)
   local ok = TweakDB:SetFlat(key, value)
-  if ok then return true end
-
-  -- Retry numeric values as float/int to work around occasional type mismatch issues.
-  if type(value) == "number" then
-    ok = TweakDB:SetFlat(key, value * 1.0)
-    if ok then return true end
-    ok = TweakDB:SetFlat(key, math.floor(value))
-    if ok then return true end
-  end
-
-  if not opts.optional then
+  if ok then
+    log("Set " .. key .. " = " .. tostring(value))
+  else
     log("FAILED to set " .. key)
-  end
-  return false
-end
-
-local function trySet(keys, value, opts)
-  for _, k in ipairs(keys) do
-    local existing = TweakDB:GetFlat(k)
-    if existing ~= nil then
-      if setFlat(k, value, opts) then
-        return k
-      end
-    end
-  end
-  return nil
-end
-
-local function cloneRecord(newId, fromId, opts)
-  -- CloneRecord can fail if the source record isn't present in this build.
-  -- opts.optional=true => suppress failure logs (for non-critical UI tweaks)
-  opts = opts or {}
-  local ok = pcall(function()
-    TweakDB:CloneRecord(newId, fromId)
-  end)
-  if (not ok) and (not opts.optional) then
-    log("FAILED to clone record " .. tostring(fromId) .. " -> " .. tostring(newId))
   end
   return ok
 end
@@ -122,87 +90,18 @@ registerForEvent("onInit", function()
   -- Gameplay changes
   -------------------------------------------------------------------------
 
-  -- Bounce Back duration
-  setFlat("Items.BonesMcCoy70Duration_inline0.value", CONFIG.BounceBackDuration)
+  -- Bounce Back duration (updated per your request)
+  TweakDB:SetFlat("Items.BonesMcCoy70Duration_inline0.value", BounceBackDuration)
 
-  -- Bounce Back heal-per-second — candidates vary across game versions
-  local BB_HPS_CANDIDATES = {
-    V0 = {
-      "BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V0_inline1.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V0_inline3.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V0_inline0.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V0_inline4.valuePerSec",
-    },
-    V1 = {
-      "BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V1_inline1.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V1_inline3.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V1_inline0.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V1_inline4.valuePerSec",
-    },
-    V2 = {
-      "BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V2_inline1.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V2_inline3.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V2_inline0.valuePerSec",
-      "BaseStatusEffect.BonesMcCoy70V2_inline4.valuePerSec",
-    },
-  }
-
-  local usedHpsV0 = trySet(BB_HPS_CANDIDATES.V0, CONFIG.BounceBack.V0.HPS)
-  local usedHpsV1 = trySet(BB_HPS_CANDIDATES.V1, CONFIG.BounceBack.V1.HPS)
-  local usedHpsV2 = trySet(BB_HPS_CANDIDATES.V2, CONFIG.BounceBack.V2.HPS)
-
-  if not usedHpsV0 then log("BounceBack V0 healing-over-time (HPS/regen) NOT patched (no candidate flat found).") end
-  if not usedHpsV1 then log("BounceBack V1 healing-over-time (HPS/regen) NOT patched (no candidate flat found).") end
-  if not usedHpsV2 then log("BounceBack V2 healing-over-time (HPS/regen) NOT patched (no candidate flat found).") end
+  -- Bounce Back heal-per-second
+  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec", BounceBack1HealOverTime)
+  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", BounceBack2HealOverTime)
+  TweakDB:SetFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", BounceBack3HealOverTime)
 
   -- MaxDoc instant heal
-  setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", CONFIG.MaxDoc.V0)
-  setFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", CONFIG.MaxDoc.V1)
-  setFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", CONFIG.MaxDoc.V2)
-
-  -------------------------------------------------------------------------
-  -- Bounce Back instant heal — tries several likely flats
-  -------------------------------------------------------------------------
-  local BB_INSTANT_CANDIDATES = {
-    V0 = {
-      "BaseStatusEffect.BonesMcCoy70V0_inline3.value",
-      "BaseStatusEffect.BonesMcCoy70V0_inline3.statPoolValue",
-      "Items.BonesMcCoy70V0_inline6.value",
-    },
-    V1 = {
-      "Items.BonesMcCoy70V1_inline6.value",
-      "BaseStatusEffect.BonesMcCoy70V1_inline3.statPoolValue",
-      "BaseStatusEffect.BonesMcCoy70V1_inline3.value",
-    },
-    V2 = {
-      "Items.BonesMcCoy70V2_inline6.value",
-      "BaseStatusEffect.BonesMcCoy70V2_inline3.statPoolValue",
-      "BaseStatusEffect.BonesMcCoy70V2_inline3.value",
-    },
-  }
-
-  local usedV0 = trySet(BB_INSTANT_CANDIDATES.V0, CONFIG.BounceBack.V0.Instant)
-  local usedV1 = trySet(BB_INSTANT_CANDIDATES.V1, CONFIG.BounceBack.V1.Instant)
-  local usedV2 = trySet(BB_INSTANT_CANDIDATES.V2, CONFIG.BounceBack.V2.Instant)
-
-  if usedV0 then
-    log("BounceBack V0 instant (one-time) heal patched via: " .. usedV0)
-  else
-    log("BounceBack V0 instant (one-time) heal NOT patched (no candidate flat worked).")
-  end
-  if usedV1 then
-    log("BounceBack V1 instant (one-time) heal patched via: " .. usedV1)
-  else
-    log("BounceBack V1 instant (one-time) heal NOT patched (no candidate flat worked).")
-  end
-  if usedV2 then
-    log("BounceBack V2 instant (one-time) heal patched via: " .. usedV2)
-  else
-    log("BounceBack V2 instant (one-time) heal NOT patched (no candidate flat worked).")
-  end
+  TweakDB:SetFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
+  TweakDB:SetFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", MaxDoc2Heal)
+  TweakDB:SetFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", MaxDoc3Heal)
 
   -------------------------------------------------------------------------
   -- UI updates (tooltips match what you set)
@@ -210,36 +109,33 @@ registerForEvent("onInit", function()
 
   setFlat(
     "Items.BonesMcCoy70V0_inline7.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V0.Instant, CONFIG.BounceBack.V0.HPS, CONFIG.BounceBackDuration),
-    { optional = true }
+    bbDesc(CONFIG.BounceBack.V0.Instant, CONFIG.BounceBack.V0.HPS, BounceBackDuration)
   )
   setFlat(
     "Items.BonesMcCoy70V1_inline7.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V1.Instant, CONFIG.BounceBack.V1.HPS, CONFIG.BounceBackDuration),
-    { optional = true }
+    bbDesc(CONFIG.BounceBack.V1.Instant, CONFIG.BounceBack.V1.HPS, BounceBackDuration)
   )
 
-  setFlat("Items.BonesMcCoy70V0_inline7.intValues", {}, { optional = true })
-  setFlat("Items.BonesMcCoy70V1_inline7.intValues", {}, { optional = true })
+  setFlat("Items.BonesMcCoy70V0_inline7.intValues", {})
+  setFlat("Items.BonesMcCoy70V1_inline7.intValues", {})
 
-  cloneRecord("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7", { optional = true })
+  TweakDB:CloneRecord("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7")
   setFlat(
     "BounceBackV2UI_zz.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, CONFIG.BounceBackDuration),
-    { optional = true }
+    bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, BounceBackDuration)
   )
-  setFlat("Items.BonesMcCoy70V2_inline7.UIData", "BounceBackV2UI_zz", { optional = true })
+  setFlat("Items.BonesMcCoy70V2_inline7.UIData", "BounceBackV2UI_zz")
 
-  setFlat("Items.FirstAidWhiffV0_inline7.localizedDescription", mdDesc(CONFIG.MaxDoc.V0), { optional = true })
-  setFlat("Items.FirstAidWhiffV0_inline7.intValues", {}, { optional = true })
+  setFlat("Items.FirstAidWhiffV0_inline7.localizedDescription", mdDesc(CONFIG.MaxDoc.V0))
+  setFlat("Items.FirstAidWhiffV0_inline7.intValues", {})
 
-  cloneRecord("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7", { optional = true })
-  setFlat("MaxDocV1UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V1), { optional = true })
-  setFlat("Items.FirstAidWhiffV1_inline7.UIData", "MaxDocV1UI_zz", { optional = true })
+  TweakDB:CloneRecord("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7")
+  setFlat("MaxDocV1UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V1))
+  setFlat("Items.FirstAidWhiffV1_inline7.UIData", "MaxDocV1UI_zz")
 
-  cloneRecord("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7", { optional = true })
-  setFlat("MaxDocV2UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V2), { optional = true })
-  setFlat("Items.FirstAidWhiffV2_inline7.UIData", "MaxDocV2UI_zz", { optional = true })
+  TweakDB:CloneRecord("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7")
+  setFlat("MaxDocV2UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V2))
+  setFlat("Items.FirstAidWhiffV2_inline7.UIData", "MaxDocV2UI_zz")
 
   log("Loaded.")
 end)
