@@ -4,7 +4,7 @@
 local modName = "HealthTweaks"
 
 local HealthTweaks = {
-  description = "Editable MaxDoc + BounceBack healing tweaks",
+  description = "Editable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown, MaxDoc + BounceBack healing values",
 }
 
 local function log(msg)
