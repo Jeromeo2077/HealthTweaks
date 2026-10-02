@@ -215,8 +215,8 @@ local function mdDesc(instant)
 end
 
 local function cloneRecordIfMissing(newId, baseId)
-  local newTDBID = TweakDBID.new(newId)
-  local baseTDBID = TweakDBID.new(baseId)
+  local newTDBID = TweakDBID(newId)
+  local baseTDBID = TweakDBID(baseId)
 
   local okGet, existing = pcall(function()
     return TweakDB:GetRecord(newTDBID)
@@ -325,29 +325,29 @@ registerForEvent("onInit", function()
 
   setFlat(
     "HealthTweaks.BounceBackV1HoTEffector.poolModifier",
-    TweakDBID.new("HealthTweaks.BounceBackV1HoTModifier")
+    TweakDBID("HealthTweaks.BounceBackV1HoTModifier")
   )
 
   setFlat(
     "HealthTweaks.BounceBackV1InstantEffector.statPoolUpdates",
     {
-      TweakDBID.new("HealthTweaks.BounceBackV1InstantUpdate")
+      TweakDBID("HealthTweaks.BounceBackV1InstantUpdate")
     }
   )
 
   setFlat(
     "HealthTweaks.BounceBackV1Package.effectors",
     {
-      TweakDBID.new("HealthTweaks.BounceBackV1HoTEffector"),
-      TweakDBID.new("HealthTweaks.BounceBackV1InstantEffector"),
-      TweakDBID.new("Effectors.UsedHealingItemOrCyberwareEffector")
+      TweakDBID("HealthTweaks.BounceBackV1HoTEffector"),
+      TweakDBID("HealthTweaks.BounceBackV1InstantEffector"),
+      TweakDBID("Effectors.UsedHealingItemOrCyberwareEffector")
     }
   )
 
   setFlat(
     "BaseStatusEffect.BonesMcCoy70V1.packages",
     {
-      TweakDBID.new("HealthTweaks.BounceBackV1Package")
+      TweakDBID("HealthTweaks.BounceBackV1Package")
     }
   )
 
@@ -392,29 +392,29 @@ registerForEvent("onInit", function()
 
   setFlat(
     "HealthTweaks.BounceBackV2HoTEffector.poolModifier",
-    TweakDBID.new("HealthTweaks.BounceBackV2HoTModifier")
+    TweakDBID("HealthTweaks.BounceBackV2HoTModifier")
   )
 
   setFlat(
     "HealthTweaks.BounceBackV2InstantEffector.statPoolUpdates",
     {
-      TweakDBID.new("HealthTweaks.BounceBackV2InstantUpdate")
+      TweakDBID("HealthTweaks.BounceBackV2InstantUpdate")
     }
   )
 
   setFlat(
     "HealthTweaks.BounceBackV2Package.effectors",
     {
-      TweakDBID.new("HealthTweaks.BounceBackV2HoTEffector"),
-      TweakDBID.new("HealthTweaks.BounceBackV2InstantEffector"),
-      TweakDBID.new("Effectors.UsedHealingItemOrCyberwareEffector")
+      TweakDBID("HealthTweaks.BounceBackV2HoTEffector"),
+      TweakDBID("HealthTweaks.BounceBackV2InstantEffector"),
+      TweakDBID("Effectors.UsedHealingItemOrCyberwareEffector")
     }
   )
 
   setFlat(
     "BaseStatusEffect.BonesMcCoy70V2.packages",
     {
-      TweakDBID.new("HealthTweaks.BounceBackV2Package")
+      TweakDBID("HealthTweaks.BounceBackV2Package")
     }
   )
 
