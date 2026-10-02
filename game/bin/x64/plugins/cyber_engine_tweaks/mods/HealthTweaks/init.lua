@@ -215,11 +215,9 @@ local function mdDesc(instant)
 end
 
 local function cloneRecordIfMissing(newId, baseId)
-  local newTDBID = TweakDBID(newId)
-  local baseTDBID = TweakDBID(baseId)
-
+  -- Already created?
   local okGet, existing = pcall(function()
-    return TweakDB:GetRecord(newTDBID)
+    return TweakDB:GetRecord(newId)
   end)
 
   if okGet and existing ~= nil then
@@ -227,8 +225,30 @@ local function cloneRecordIfMissing(newId, baseId)
     return true
   end
 
+  -- Resolve the real source record first.
+  local okBase, baseRecord = pcall(function()
+    return TweakDB:GetRecord(baseId)
+  end)
+
+  if not okBase or baseRecord == nil then
+    log("FAILED: source record does not exist: " .. baseId)
+    return false
+  end
+
+  local okID, baseTDBID = pcall(function()
+    return baseRecord:GetID()
+  end)
+
+  if not okID or baseTDBID == nil then
+    log("FAILED: could not get source TweakDBID: " .. baseId)
+    return false
+  end
+
+  log("cloning " .. baseId .. " -> " .. newId)
+
+  -- Explicitly select CET's string + TweakDBID overload.
   local okClone, cloneResult = pcall(function()
-    return TweakDB:CloneRecord(newTDBID, baseTDBID)
+    return TweakDB:CloneRecord(newId, baseTDBID)
   end)
 
   if not okClone then
@@ -242,11 +262,7 @@ local function cloneRecordIfMissing(newId, baseId)
   end
 
   if cloneResult ~= true then
-    log(
-      "FAILED to clone record "
-        .. newId
-        .. " | CloneRecord returned false"
-    )
+    log("FAILED to clone record " .. newId .. " | CloneRecord returned false")
     return false
   end
 
