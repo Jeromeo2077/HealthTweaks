@@ -215,23 +215,43 @@ local function mdDesc(instant)
 end
 
 local function cloneRecordIfMissing(newId, baseId)
+  local newTDBID = TweakDBID.new(newId)
+  local baseTDBID = TweakDBID.new(baseId)
+
   local okGet, existing = pcall(function()
-    return TweakDB:GetRecord(newId)
+    return TweakDB:GetRecord(newTDBID)
   end)
 
   if okGet and existing ~= nil then
+    log("record already exists: " .. newId)
     return true
   end
 
   local okClone, cloneResult = pcall(function()
-    return TweakDB:CloneRecord(newId, baseId)
+    return TweakDB:CloneRecord(newTDBID, baseTDBID)
   end)
 
   if not okClone then
-    log("FAILED to clone record " .. newId)
+    log(
+      "FAILED to clone record "
+        .. newId
+        .. " | ERROR: "
+        .. tostring(cloneResult)
+    )
+    return false
   end
 
-  return okClone
+  if cloneResult ~= true then
+    log(
+      "FAILED to clone record "
+        .. newId
+        .. " | CloneRecord returned false"
+    )
+    return false
+  end
+
+  log("cloned record: " .. newId)
+  return true
 end
 
 registerForEvent("onInit", function()
