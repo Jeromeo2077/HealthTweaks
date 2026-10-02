@@ -4,7 +4,7 @@
 local modName = "Health Tweaks"
 
 local HealthTweaks = {
-  description = "Editable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown,itable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown, MaxDoc + BounceBack values",
+  description = "Editable Tweaks: Passive Health Regeneration both (In Combat and Out of Combat); Inhaler Recharge Cooldown, MaxDoc + BounceBack values",
 }
 
 local function log(msg)
@@ -18,18 +18,18 @@ local CONFIG = {
   -- Bounce Back duration (seconds)
   BounceBackDuration = 10,
 
-  -- Bounce Back values (V0/V1/V2 are Mk1/Mk2/Mk3-ish tiers)
+  -- Bounce Back values (V0/V1/V2 are Consumer/Professional/Military tiers)
   BounceBack = {
-    V0 = { Instant = 5, HPS = 3 },
-    V1 = { Instant = 7, HPS = 4 },
-    V2 = { Instant = 10, HPS = 5 },
+    V0 = { Instant = 5, HPS = 1.25 },
+    V1 = { Instant = 8, HPS = 1.6 },
+    V2 = { Instant = 10, HPS = 2.00 },
   },
 
   -- MaxDoc values (instant heal)
   MaxDoc = {
-    V0 = 40,
-    V1 = 55,
-    V2 = 70,
+    V0 = 25,
+    V1 = 35,
+    V2 = 45,
   },
 
   -- Passive regen / inhaler recharge
@@ -67,6 +67,113 @@ local function setFlat(key, value)
   return ok
 end
 
+local function scanInlineFlats(prefix, property, maxIndex)
+  log("Scanning " .. prefix .. " for " .. property)
+
+  for i = 0, maxIndex do
+    local key = prefix .. "_inline" .. i .. "." .. property
+
+    local ok, value = pcall(function()
+      return TweakDB:GetFlat(key)
+    end)
+
+    if ok and value ~= nil then
+      log("FOUND: " .. key .. " = " .. tostring(value))
+    end
+  end
+end
+
+local function readableTDB(value)
+  local ok, result = pcall(function()
+    return TDBID.ToStringDEBUG(value)
+  end)
+
+  if ok and result ~= nil and result ~= "" then
+    return result
+  end
+
+  local okRecord, recordID = pcall(function()
+    return value:GetID()
+  end)
+
+  if okRecord and recordID ~= nil then
+    local okName, name = pcall(function()
+      return TDBID.ToStringDEBUG(recordID)
+    end)
+
+    if okName and name ~= nil then
+      return name
+    end
+  end
+
+  return tostring(value)
+end
+
+local function dumpItemFlat(item, property)
+  local key = item .. "." .. property
+
+  local ok, value = pcall(function()
+    return TweakDB:GetFlat(key)
+  end)
+
+  if not ok or value == nil then
+    log("  " .. property .. " = <none>")
+    return
+  end
+
+  if type(value) == "table" then
+    log("  " .. property .. ":")
+
+    if #value == 0 then
+      log("    <empty>")
+    else
+      for i, entry in ipairs(value) do
+        log("    [" .. i .. "] " .. readableTDB(entry))
+      end
+    end
+  else
+    log("  " .. property .. " = " .. readableTDB(value))
+  end
+end
+
+local function dumpHealingItem(item)
+  log("===== " .. item .. " =====")
+
+  dumpItemFlat(item, "OnAttach")
+  dumpItemFlat(item, "OnEquip")
+  dumpItemFlat(item, "effectors")
+  dumpItemFlat(item, "statModifiers")
+  dumpItemFlat(item, "statModifierGroups")
+  dumpItemFlat(item, "statPools")
+  dumpItemFlat(item, "objectActions")
+  dumpItemFlat(item, "UIData")
+end
+
+local function dumpHealingChildren(item)
+  local equip = item .. "_inline4"
+  local action = item .. "_inline0"
+
+  log("===== ON EQUIP: " .. equip .. " =====")
+
+  dumpItemFlat(equip, "effectors")
+  dumpItemFlat(equip, "items")
+  dumpItemFlat(equip, "statPools")
+  dumpItemFlat(equip, "stats")
+  dumpItemFlat(equip, "UIData")
+  dumpItemFlat(equip, "stackable")
+
+  log("===== ACTION: " .. action .. " =====")
+
+  dumpItemFlat(action, "completionEffects")
+  dumpItemFlat(action, "startEffects")
+  dumpItemFlat(action, "activationTime")
+  dumpItemFlat(action, "durationTime")
+  dumpItemFlat(action, "costs")
+  dumpItemFlat(action, "rewards")
+  dumpItemFlat(action, "removeAfterUse")
+  dumpItemFlat(action, "actionName")
+end
+
 local function bbDesc(instant, hps, dur)
   return "Instantly restores "
     .. instant
@@ -75,6 +182,32 @@ local function bbDesc(instant, hps, dur)
     .. " health per second for "
     .. dur
     .. " seconds."
+end
+
+local function dumpCompletionStatus(item)
+  local completion = item .. "_inline3"
+
+  log("===== COMPLETION: " .. completion .. " =====")
+
+  local ok, statusEffect = pcall(function()
+    return TweakDB:GetFlat(completion .. ".statusEffect")
+  end)
+
+  if not ok or statusEffect == nil then
+    log("  statusEffect = <none>")
+    return
+  end
+
+  local statusName = readableTDB(statusEffect)
+
+  log("  statusEffect = " .. statusName)
+
+  if statusName == nil or statusName == "" then
+    return
+  end
+
+  scanInlineFlats(statusName, "valuePerSec", 30)
+  scanInlineFlats(statusName, "statPoolValue", 30)
 end
 
 local function mdDesc(instant)
@@ -90,8 +223,8 @@ local function cloneRecordIfMissing(newId, baseId)
     return true
   end
 
-  local okClone = pcall(function()
-    TweakDB:CloneRecord(newId, baseId)
+  local okClone, cloneResult = pcall(function()
+    return TweakDB:CloneRecord(newId, baseId)
   end)
 
   if not okClone then
@@ -102,6 +235,15 @@ local function cloneRecordIfMissing(newId, baseId)
 end
 
 registerForEvent("onInit", function()
+
+  dumpCompletionStatus("Items.BonesMcCoy70V0")
+  dumpCompletionStatus("Items.BonesMcCoy70V1")
+  dumpCompletionStatus("Items.BonesMcCoy70V2")
+
+  dumpCompletionStatus("Items.FirstAidWhiffV0")
+  dumpCompletionStatus("Items.FirstAidWhiffV1")
+  dumpCompletionStatus("Items.FirstAidWhiffV2")
+
   -- Disable Passive Health Regeneration
   setFlat("BaseStatPools.PlayerBaseInCombatHealthRegen_inline4.value", CONFIG.PassiveRegenInCombat)
   setFlat("BaseStatPools.PlayerBaseOutOfCombatHealthRegen_inline4.value", CONFIG.PassiveRegenOutOfCombat)
@@ -118,52 +260,62 @@ registerForEvent("onInit", function()
 
   -- Bounce Back heal-per-second
   setFlat("BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec", BounceBack1HealOverTime)
-  setFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", BounceBack2HealOverTime)
-  setFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", BounceBack3HealOverTime)
+  -- setFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", BounceBack2HealOverTime)
+  -- setFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", BounceBack3HealOverTime)
 
   -- Bounce Back instant heal
-  setFlat("BaseStatusEffect.BonesMcCoy70V0_inline6.statPoolValue", BounceBack1InstantHeal)
-  setFlat("BaseStatusEffect.BonesMcCoy70V1_inline6.statPoolValue", BounceBack2InstantHeal)
-  setFlat("BaseStatusEffect.BonesMcCoy70V2_inline6.statPoolValue", BounceBack3InstantHeal)
+  setFlat("BaseStatusEffect.BonesMcCoy70V0_inline10.statPoolValue", BounceBack1InstantHeal)
+  -- setFlat("BaseStatusEffect.BonesMcCoy70V1_inline10.statPoolValue", BounceBack2InstantHeal)
+  -- setFlat("BaseStatusEffect.BonesMcCoy70V2_inline10.statPoolValue", BounceBack3InstantHeal)
 
   -- MaxDoc instant heal
-  setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
-  setFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", MaxDoc2Heal)
-  setFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", MaxDoc3Heal)
+  -- setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
+  -- setFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", MaxDoc2Heal)
+  -- setFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", MaxDoc3Heal)
 
   -------------------------------------------------------------------------
-  -- UI updates (tooltips match what you set)
+  -- UI updates
   -------------------------------------------------------------------------
 
+  -- Bounce Back UIData is inline8
   setFlat(
-    "Items.BonesMcCoy70V0_inline7.localizedDescription",
+    "Items.BonesMcCoy70V0_inline8.localizedDescription",
     bbDesc(CONFIG.BounceBack.V0.Instant, CONFIG.BounceBack.V0.HPS, BounceBackDuration)
   )
+
   setFlat(
-    "Items.BonesMcCoy70V1_inline7.localizedDescription",
+    "Items.BonesMcCoy70V1_inline8.localizedDescription",
     bbDesc(CONFIG.BounceBack.V1.Instant, CONFIG.BounceBack.V1.HPS, BounceBackDuration)
   )
 
-  setFlat("Items.BonesMcCoy70V0_inline7.intValues", {})
-  setFlat("Items.BonesMcCoy70V1_inline7.intValues", {})
-
-  cloneRecordIfMissing("BounceBackV2UI_zz", "Items.BonesMcCoy70V1_inline7")
   setFlat(
-    "BounceBackV2UI_zz.localizedDescription",
+    "Items.BonesMcCoy70V2_inline8.localizedDescription",
     bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, BounceBackDuration)
   )
-  setFlat("Items.BonesMcCoy70V2_inline7.UIData", "BounceBackV2UI_zz")
 
-  setFlat("Items.FirstAidWhiffV0_inline7.localizedDescription", mdDesc(CONFIG.MaxDoc.V0))
+  setFlat("Items.BonesMcCoy70V0_inline8.intValues", {})
+  setFlat("Items.BonesMcCoy70V1_inline8.intValues", {})
+  setFlat("Items.BonesMcCoy70V2_inline8.intValues", {})
+
+  -- MaxDoc UIData is inline7
+  setFlat(
+    "Items.FirstAidWhiffV0_inline7.localizedDescription",
+    mdDesc(CONFIG.MaxDoc.V0)
+  )
+
+  setFlat(
+    "Items.FirstAidWhiffV1_inline7.localizedDescription",
+    mdDesc(CONFIG.MaxDoc.V1)
+  )
+
+  setFlat(
+    "Items.FirstAidWhiffV2_inline7.localizedDescription",
+    mdDesc(CONFIG.MaxDoc.V2)
+  )
+
   setFlat("Items.FirstAidWhiffV0_inline7.intValues", {})
-
-  cloneRecordIfMissing("MaxDocV1UI_zz", "Items.FirstAidWhiffV0_inline7")
-  setFlat("MaxDocV1UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V1))
-  setFlat("Items.FirstAidWhiffV1_inline7.UIData", "MaxDocV1UI_zz")
-
-  cloneRecordIfMissing("MaxDocV2UI_zz", "Items.FirstAidWhiffV0_inline7")
-  setFlat("MaxDocV2UI_zz.localizedDescription", mdDesc(CONFIG.MaxDoc.V2))
-  setFlat("Items.FirstAidWhiffV2_inline7.UIData", "MaxDocV2UI_zz")
+  setFlat("Items.FirstAidWhiffV1_inline7.intValues", {})
+  setFlat("Items.FirstAidWhiffV2_inline7.intValues", {})
 
   log("loaded")
 end)
