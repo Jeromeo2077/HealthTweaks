@@ -246,22 +246,9 @@ local function cloneRecordIfMissing(newId, baseId)
 
   log("cloning " .. baseId .. " -> " .. newId)
 
-  -- Explicitly select CET's string + TweakDBID overload.
-  local okClone, cloneResult = pcall(function()
-    return TweakDB:CloneRecord(newId, baseTDBID)
-  end)
+  local cloneResult = TweakDB:CloneRecord(newId, baseTDBID)
 
-  if not okClone then
-    log(
-      "FAILED to clone record "
-        .. newId
-        .. " | ERROR: "
-        .. tostring(cloneResult)
-    )
-    return false
-  end
-
-  if cloneResult ~= true then
+  if not cloneResult then
     log("FAILED to clone record " .. newId .. " | CloneRecord returned false")
     return false
   end
