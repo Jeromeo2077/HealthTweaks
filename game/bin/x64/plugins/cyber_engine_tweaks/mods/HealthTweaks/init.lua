@@ -255,18 +255,148 @@ registerForEvent("onInit", function()
   -- Gameplay changes
   -------------------------------------------------------------------------
 
-  -- Bounce Back duration (updated per your request)
+  -- Bounce Back V0 duration (updated per your request)
   setFlat("Items.BonesMcCoy70Duration_inline0.value", BounceBackDuration)
 
-  -- Bounce Back heal-per-second
+  -- Bounce Back V0 heal-per-second
   setFlat("BaseStatusEffect.BonesMcCoy70V0_inline2.valuePerSec", BounceBack1HealOverTime)
-  -- setFlat("BaseStatusEffect.BonesMcCoy70V1_inline2.valuePerSec", BounceBack2HealOverTime)
-  -- setFlat("BaseStatusEffect.BonesMcCoy70V2_inline2.valuePerSec", BounceBack3HealOverTime)
 
-  -- Bounce Back instant heal
+  -- Bounce Back V0 instant heal
   setFlat("BaseStatusEffect.BonesMcCoy70V0_inline10.statPoolValue", BounceBack1InstantHeal)
-  -- setFlat("BaseStatusEffect.BonesMcCoy70V1_inline10.statPoolValue", BounceBack2InstantHeal)
-  -- setFlat("BaseStatusEffect.BonesMcCoy70V2_inline10.statPoolValue", BounceBack3InstantHeal)
+
+    -------------------------------------------------------------------------
+  -- Bounce Back V1: independent healing package
+  -------------------------------------------------------------------------
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV1Package",
+    "BaseStatusEffect.BonesMcCoy70V0_inline0"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV1HoTEffector",
+    "BaseStatusEffect.BonesMcCoy70V0_inline1"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV1HoTModifier",
+    "BaseStatusEffect.BonesMcCoy70V0_inline2"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV1InstantEffector",
+    "BaseStatusEffect.BonesMcCoy70V0_inline9"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV1InstantUpdate",
+    "BaseStatusEffect.BonesMcCoy70V0_inline10"
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV1HoTModifier.valuePerSec",
+    BounceBack2HealOverTime
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV1InstantUpdate.statPoolValue",
+    BounceBack2InstantHeal
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV1HoTEffector.poolModifier",
+    TweakDBID.new("HealthTweaks.BounceBackV1HoTModifier")
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV1InstantEffector.statPoolUpdates",
+    {
+      TweakDBID.new("HealthTweaks.BounceBackV1InstantUpdate")
+    }
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV1Package.effectors",
+    {
+      TweakDBID.new("HealthTweaks.BounceBackV1HoTEffector"),
+      TweakDBID.new("HealthTweaks.BounceBackV1InstantEffector"),
+      TweakDBID.new("Effectors.UsedHealingItemOrCyberwareEffector")
+    }
+  )
+
+  setFlat(
+    "BaseStatusEffect.BonesMcCoy70V1.packages",
+    {
+      TweakDBID.new("HealthTweaks.BounceBackV1Package")
+    }
+  )
+
+  -------------------------------------------------------------------------
+  -- Bounce Back V2: independent healing package
+  -------------------------------------------------------------------------
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV2Package",
+    "BaseStatusEffect.BonesMcCoy70V0_inline0"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV2HoTEffector",
+    "BaseStatusEffect.BonesMcCoy70V0_inline1"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV2HoTModifier",
+    "BaseStatusEffect.BonesMcCoy70V0_inline2"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV2InstantEffector",
+    "BaseStatusEffect.BonesMcCoy70V0_inline9"
+  )
+
+  cloneRecordIfMissing(
+    "HealthTweaks.BounceBackV2InstantUpdate",
+    "BaseStatusEffect.BonesMcCoy70V0_inline10"
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV2HoTModifier.valuePerSec",
+    BounceBack3HealOverTime
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV2InstantUpdate.statPoolValue",
+    BounceBack3InstantHeal
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV2HoTEffector.poolModifier",
+    TweakDBID.new("HealthTweaks.BounceBackV2HoTModifier")
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV2InstantEffector.statPoolUpdates",
+    {
+      TweakDBID.new("HealthTweaks.BounceBackV2InstantUpdate")
+    }
+  )
+
+  setFlat(
+    "HealthTweaks.BounceBackV2Package.effectors",
+    {
+      TweakDBID.new("HealthTweaks.BounceBackV2HoTEffector"),
+      TweakDBID.new("HealthTweaks.BounceBackV2InstantEffector"),
+      TweakDBID.new("Effectors.UsedHealingItemOrCyberwareEffector")
+    }
+  )
+
+  setFlat(
+    "BaseStatusEffect.BonesMcCoy70V2.packages",
+    {
+      TweakDBID.new("HealthTweaks.BounceBackV2Package")
+    }
+  )
 
   -- MaxDoc instant heal
   -- setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
