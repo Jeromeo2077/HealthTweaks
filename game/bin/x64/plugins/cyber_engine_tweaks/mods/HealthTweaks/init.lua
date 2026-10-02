@@ -421,6 +421,48 @@ registerForEvent("onInit", function()
     }
   )
 
+    -------------------------------------------------------------------------
+  -- TEMP: verify cloned Bounce Back records directly
+  -------------------------------------------------------------------------
+
+  local function verifyFlat(key)
+    local ok, value = pcall(function()
+      return TweakDB:GetFlat(key)
+    end)
+
+    if ok and value ~= nil then
+      log("VERIFY: " .. key .. " = " .. tostring(value))
+    else
+      log("VERIFY FAILED: " .. key)
+    end
+  end
+
+  local function verifyRecord(key)
+    local ok, record = pcall(function()
+      return TweakDB:GetRecord(key)
+    end)
+
+    if ok and record ~= nil then
+      log("VERIFY RECORD EXISTS: " .. key)
+    else
+      log("VERIFY RECORD MISSING: " .. key)
+    end
+  end
+
+  verifyRecord("HealthTweaks.BounceBackV1Package")
+  verifyRecord("HealthTweaks.BounceBackV1HoTModifier")
+  verifyRecord("HealthTweaks.BounceBackV1InstantUpdate")
+
+  verifyRecord("HealthTweaks.BounceBackV2Package")
+  verifyRecord("HealthTweaks.BounceBackV2HoTModifier")
+  verifyRecord("HealthTweaks.BounceBackV2InstantUpdate")
+
+  verifyFlat("HealthTweaks.BounceBackV1HoTModifier.valuePerSec")
+  verifyFlat("HealthTweaks.BounceBackV1InstantUpdate.statPoolValue")
+
+  verifyFlat("HealthTweaks.BounceBackV2HoTModifier.valuePerSec")
+  verifyFlat("HealthTweaks.BounceBackV2InstantUpdate.statPoolValue")
+
   -- MaxDoc instant heal
   -- setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
   -- setFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", MaxDoc2Heal)
