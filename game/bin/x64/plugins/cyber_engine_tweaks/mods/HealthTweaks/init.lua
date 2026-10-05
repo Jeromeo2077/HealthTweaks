@@ -116,14 +116,6 @@ end
 
 registerForEvent("onInit", function()
 
-  dumpCompletionStatus("Items.BonesMcCoy70V0")
-  dumpCompletionStatus("Items.BonesMcCoy70V1")
-  dumpCompletionStatus("Items.BonesMcCoy70V2")
-
-  dumpCompletionStatus("Items.FirstAidWhiffV0")
-  dumpCompletionStatus("Items.FirstAidWhiffV1")
-  dumpCompletionStatus("Items.FirstAidWhiffV2")
-
   -- Disable Passive Health Regeneration
   setFlat("BaseStatPools.PlayerBaseInCombatHealthRegen_inline4.value", CONFIG.PassiveRegenInCombat)
   setFlat("BaseStatPools.PlayerBaseOutOfCombatHealthRegen_inline4.value", CONFIG.PassiveRegenOutOfCombat)
@@ -144,9 +136,20 @@ registerForEvent("onInit", function()
   -- Bounce Back V0 instant heal
   setFlat("BaseStatusEffect.BonesMcCoy70V0_inline10.statPoolValue", BounceBack1InstantHeal)
 
-    -------------------------------------------------------------------------
+  -- Bounce Back V0 effective item healing values
+  setFlat(
+  "Items.BonesMcCoy70V0_inline6.value", BounceBack1HealOverTime)
+
+  setFlat("Items.BonesMcCoy70V0_inline7.value", BounceBack1InstantHeal)
+
+  -------------------------------------------------------------------------
   -- Bounce Back V1: independent healing package
   -------------------------------------------------------------------------
+
+  -- Bounce Back V1 effective item healing values
+  setFlat("Items.BonesMcCoy70V1_inline6.value", BounceBack2HealOverTime)
+
+  setFlat("Items.BonesMcCoy70V1_inline7.value", BounceBack2InstantHeal)
 
   cloneRecordIfMissing(
     "HealthTweaks.BounceBackV1Package",
@@ -214,6 +217,11 @@ registerForEvent("onInit", function()
   -------------------------------------------------------------------------
   -- Bounce Back V2: independent healing package
   -------------------------------------------------------------------------
+
+  -- Bounce Back V2 effective item healing values
+  setFlat("Items.BonesMcCoy70V2_inline6.value", BounceBack2HealOverTime)
+
+  setFlat("Items.BonesMcCoy70V2_inline7.value", BounceBack2InstantHeal)
 
   cloneRecordIfMissing(
     "HealthTweaks.BounceBackV2Package",
