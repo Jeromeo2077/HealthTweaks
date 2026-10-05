@@ -329,45 +329,36 @@ registerForEvent("onInit", function()
   -- UI updates
   -------------------------------------------------------------------------
 
-  -- Bounce Back UIData is inline8
+  -------------------------------------------------------------------------
+  -- Bounce Back tooltips
+  -------------------------------------------------------------------------
+
   setFlat(
     "Items.BonesMcCoy70V0_inline8.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V0.Instant, CONFIG.BounceBack.V0.HPS, BounceBackDuration)
+    bbDesc(
+      CONFIG.BounceBack.V0.Instant,
+      CONFIG.BounceBack.V0.HPS,
+      BounceBackDuration
+    )
   )
 
   setFlat(
     "Items.BonesMcCoy70V1_inline8.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V1.Instant, CONFIG.BounceBack.V1.HPS, BounceBackDuration)
+    bbDesc(
+      CONFIG.BounceBack.V1.Instant,
+      CONFIG.BounceBack.V1.HPS,
+      BounceBackDuration
+    )
   )
 
   setFlat(
     "Items.BonesMcCoy70V2_inline8.localizedDescription",
-    bbDesc(CONFIG.BounceBack.V2.Instant, CONFIG.BounceBack.V2.HPS, BounceBackDuration)
+    bbDesc(
+      CONFIG.BounceBack.V2.Instant,
+      CONFIG.BounceBack.V2.HPS,
+      BounceBackDuration
+    )
   )
-
-  setFlat("Items.BonesMcCoy70V0_inline8.intValues", {})
-  setFlat("Items.BonesMcCoy70V1_inline8.intValues", {})
-  setFlat("Items.BonesMcCoy70V2_inline8.intValues", {})
-
-  -- MaxDoc UIData is inline7
-  setFlat(
-    "Items.FirstAidWhiffV0_inline7.localizedDescription",
-    mdDesc(CONFIG.MaxDoc.V0)
-  )
-
-  setFlat(
-    "Items.FirstAidWhiffV1_inline7.localizedDescription",
-    mdDesc(CONFIG.MaxDoc.V1)
-  )
-
-  setFlat(
-    "Items.FirstAidWhiffV2_inline7.localizedDescription",
-    mdDesc(CONFIG.MaxDoc.V2)
-  )
-
-  setFlat("Items.FirstAidWhiffV0_inline7.intValues", {})
-  setFlat("Items.FirstAidWhiffV1_inline7.intValues", {})
-  setFlat("Items.FirstAidWhiffV2_inline7.intValues", {})
 
   log("loaded")
 end)
