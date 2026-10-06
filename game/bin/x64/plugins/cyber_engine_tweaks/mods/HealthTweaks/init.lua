@@ -67,10 +67,6 @@ local function setFlat(key, value)
   return ok
 end
 
-local function mdDesc(instant)
-  return "Instantly restores " .. instant .. " health."
-end
-
 registerForEvent("onInit", function()
 
   -- Disable Passive Health Regeneration
@@ -82,6 +78,9 @@ registerForEvent("onInit", function()
 
   -------------------------------------------------------------------------
   -- Bounce Back Gameplay Changes
+  -- V0 / Consumer
+  -- V1 / Professional
+  -- V2 / Military
   -------------------------------------------------------------------------
 
   -- Bounce Back V0 duration
@@ -111,12 +110,28 @@ registerForEvent("onInit", function()
 
   -------------------------------------------------------------------------
   -- MaxDoc Gameplay Changes
+  -- V0 / Consumer
+  -- V1 / Professional
+  -- V2 / Military
   -------------------------------------------------------------------------
 
-  -- MaxDoc instant heal
-  -- setFlat("BaseStatusEffect.FirstAidWhiffV0_inline3.statPoolValue", MaxDoc1Heal)
-  -- setFlat("BaseStatusEffect.FirstAidWhiffV1_inline3.statPoolValue", MaxDoc2Heal)
-  -- setFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", MaxDoc3Heal)
+  -- MaxDoc V0 effective item healing values
+  setFlat(
+    "Items.FirstAidWhiffV0_inline6.value",
+    MaxDoc1Heal
+  )
+
+  -- MaxDoc V1 effective item healing values
+  setFlat(
+    "Items.FirstAidWhiffV1_inline6.value",
+    MaxDoc2Heal
+  )
+
+  -- MaxDoc V2 effective item healing values
+  setFlat(
+    "Items.FirstAidWhiffV2_inline6.value",
+    MaxDoc3Heal
+  )
 
   -------------------------------------------------------------------------
   -- Bounce Back tooltip descriptions
@@ -154,6 +169,34 @@ registerForEvent("onInit", function()
       math.floor(CONFIG.BounceBack.V2.HPS + 0.5),
       CONFIG.BounceBack.V2.Instant,
       BounceBackDuration
+    }
+  )
+
+    -------------------------------------------------------------------------
+  -- MaxDoc tooltip descriptions
+  --
+  -- Vanilla LocKey uses:
+  --   intValues[0] = instant healing
+  -------------------------------------------------------------------------
+
+  setFlat(
+    "Items.FirstAidWhiffV0_inline7.intValues",
+    {
+      CONFIG.MaxDoc.V0
+    }
+  )
+
+  setFlat(
+    "Items.FirstAidWhiffV1_inline7.intValues",
+    {
+      CONFIG.MaxDoc.V1
+    }
+  )
+
+  setFlat(
+    "Items.FirstAidWhiffV2_inline7.intValues",
+    {
+      CONFIG.MaxDoc.V2
     }
   )
 
