@@ -334,38 +334,42 @@ registerForEvent("onInit", function()
   -- setFlat("BaseStatusEffect.FirstAidWhiffV2_inline3.statPoolValue", MaxDoc3Heal)
 
   -------------------------------------------------------------------------
-  -- UI updates
-  -------------------------------------------------------------------------
-
-  -------------------------------------------------------------------------
-  -- Bounce Back tooltips
+  -- Bounce Back tooltip descriptions
+  --
+  -- Vanilla LocKey uses:
+  --   intValues[0] = healing per second
+  --   intValues[1] = instant healing
+  --   intValues[2] = duration
+  --
+  -- HPS values are rounded to the nearest integer for the description.
+  -- Actual gameplay values remain unchanged.
   -------------------------------------------------------------------------
 
   setFlat(
-    "Items.BonesMcCoy70V0_inline8.localizedDescription",
-    bbDesc(
+    "Items.BonesMcCoy70V0_inline8.intValues",
+    {
+      math.floor(CONFIG.BounceBack.V0.HPS + 0.5),
       CONFIG.BounceBack.V0.Instant,
-      CONFIG.BounceBack.V0.HPS,
       BounceBackDuration
-    )
+    }
   )
 
   setFlat(
-    "Items.BonesMcCoy70V1_inline8.localizedDescription",
-    bbDesc(
+    "Items.BonesMcCoy70V1_inline8.intValues",
+    {
+      math.floor(CONFIG.BounceBack.V1.HPS + 0.5),
       CONFIG.BounceBack.V1.Instant,
-      CONFIG.BounceBack.V1.HPS,
       BounceBackDuration
-    )
+    }
   )
 
   setFlat(
-    "Items.BonesMcCoy70V2_inline8.localizedDescription",
-    bbDesc(
+    "Items.BonesMcCoy70V2_inline8.intValues",
+    {
+      math.floor(CONFIG.BounceBack.V2.HPS + 0.5),
       CONFIG.BounceBack.V2.Instant,
-      CONFIG.BounceBack.V2.HPS,
       BounceBackDuration
-    )
+    }
   )
 
   log("loaded")
